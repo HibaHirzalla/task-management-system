@@ -12,14 +12,20 @@ def create_task(request):
         if form.is_valid():
             task = form.save(commit=False)
             task.created_by = request.user
-            task.save()  # Now save the task to the database
+            task.save()
             return redirect('task_list')
     else:
         form = TaskForm()
     return render(request, 'tasks/task_form.html', {'form': form})
 
 def task_list(request):
-    tasks = Task.objects.all()
+    tasks = Task.objects.all()  # Get all tasks by default
+
+    # Filter tasks by status if a status is provided in the request
+    status = request.GET.get('status')
+    if status:
+        tasks = tasks.filter(status=status)
+
     return render(request, 'tasks/task_list.html', {'tasks': tasks})
 
 def update_task(request, pk):
